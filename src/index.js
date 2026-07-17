@@ -6,20 +6,21 @@ import store from './store';
 import './styles/index.css';
 import App from './App';
 import reportWebVitals from './utils/reportWebVitals';
+import { enableMocking } from './mocks/enableMocking';
 
 const queryClient = new QueryClient();
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </Provider>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+enableMocking().then(() => {
+  ReactDOM.render(
+    <React.StrictMode>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </Provider>
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
 
-reportWebVitals();
-
-reportWebVitals();
+  reportWebVitals();
+});

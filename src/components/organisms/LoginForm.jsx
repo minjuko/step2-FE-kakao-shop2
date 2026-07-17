@@ -112,6 +112,11 @@ const LoginForm = () => {
             <Container>
                 <Title>로그인</Title>
                 <Form onSubmit={loginReq} noValidate>
+                    {process.env.REACT_APP_ENABLE_MOCKS === "true" && (
+                        <p className="mb-4 bg-yellow-50 p-2 text-sm" role="note">
+                            데모 모드에서는 형식에 맞는 이메일과 비밀번호로 로그인할 수 있습니다.
+                        </p>
+                    )}
                     <InputGroup
                         id="email"
                         name="email"
