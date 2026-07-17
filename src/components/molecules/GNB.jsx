@@ -24,36 +24,45 @@ const GNB = () => {
   };
 
   return (
-    <header className="w-full border-b-2 border-gray-300">
-      <Link to={staticServerUri + "/"} className="flex items-center px-4 py-3">
-        <img src={img} alt="카카오 쇼핑하기" className="w-30 h-10" />
-        <div className="ml-auto flex items-center space-x-4">
-          <Link to={staticServerUri + "/cart"}>
-            <img src={cart} alt="장바구니 버튼" className="w-8 h-8" />
+    <header className="w-full border-b border-gray-200 bg-white">
+      <div className="mx-auto flex min-h-[64px] max-w-[1200px] flex-wrap items-center gap-3 px-4 py-3">
+        <Link to={staticServerUri + "/"} aria-label="카카오 쇼핑하기 홈">
+          <img src={img} alt="카카오 쇼핑하기" className="h-10 w-auto" />
+        </Link>
+        <nav
+          className="ml-auto flex flex-wrap items-center justify-end gap-3 text-sm sm:gap-4 sm:text-base"
+          aria-label="주요 메뉴"
+        >
+          <Link
+            to={staticServerUri + "/cart"}
+            className="rounded p-1 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            aria-label="장바구니"
+          >
+            <img src={cart} alt="" className="h-8 w-8" />
           </Link>
           {user ? (
             <Link
               to={staticServerUri + "/"}
-              className="text-300 border-l pl-4"
+              className="border-l pl-3 sm:pl-4"
               onClick={handleLogOut}
             >
               로그아웃
             </Link>
           ) : (
             <>
-              <Link to= {staticServerUri + "/login"} className="text-300">
+              <Link to={staticServerUri + "/login"}>
                 로그인
               </Link>
               <Link
                 to={staticServerUri + "/signup"}
-                className="text-300 border-l pl-4"
+                className="border-l pl-3 sm:pl-4"
               >
                 회원가입
               </Link>
             </>
           )}
-        </div>
-      </Link>
+        </nav>
+      </div>
     </header>
   );
 };

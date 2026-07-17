@@ -19,9 +19,11 @@ const RequiredAuthLayout = () => {
   }
 
   return (
-    <div className="flex flex-col min-w-screen min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <GNB />
-      <Outlet />
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );

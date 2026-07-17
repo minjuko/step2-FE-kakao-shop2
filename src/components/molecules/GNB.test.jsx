@@ -1,0 +1,46 @@
+import { configureStore } from "@reduxjs/toolkit";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { MemoryRouter } from "react-router-dom";
+import userReducer from "../../store/slices/userSlice";
+import { setAuthToken } from "../../utils/localStorage";
+import GNB from "./GNB";
+
+const renderGNB = () => {
+  const store = configureStore({ reducer: { user: userReducer } });
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <GNB />
+        </MemoryRouter>
+      </Provider>
+    ),
+  };
+};
+
+describe("GNB", () => {
+  beforeEach(() => localStorage.clear());
+
+  test("링크를 중첩하지 않고 주요 메뉴를 제공한다", () => {
+    const { container } = renderGNB();
+
+    expect(screen.getByRole("navigation", { name: "주요 메뉴" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "카카오 쇼핑하기 홈" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "장바구니" })).toHaveAttribute("href", "/cart");
+    expect(screen.getByRole("link", { name: "로그인" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "회원가입" })).toBeInTheDocument();
+    expect(container.querySelector("a a")).toBeNull();
+  });
+
+  test("인증 상태에서 로그아웃하면 저장 토큰과 상태를 제거한다", () => {
+    setAuthToken("Bearer token", 60_000);
+    const { store } = renderGNB();
+
+    fireEvent.click(screen.getByRole("link", { name: "로그아웃" }));
+
+    expect(localStorage.getItem("user")).toBeNull();
+    expect(store.getState().user.user).toBeNull();
+  });
+});
