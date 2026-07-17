@@ -18,7 +18,7 @@ const CartItem = ({ item, onChange, onDelete }) => {
                 <Button
                   className="border w-10 mr-2"
                   onClick={() => {
-                    onDelete(cart.id, cart.quantity,cart.option.price)
+                    onDelete(cart.id)
                   }}
                 >
                   삭제
@@ -26,10 +26,10 @@ const CartItem = ({ item, onChange, onDelete }) => {
                 <Counter
                   initCount={cart.quantity}
                   onIncrease={(count) => {
-                    onChange(cart.id, count, cart.option.price);
+                    onChange(cart.id, count);
                   }}
                   onDecrease={(count) => {
-                    onChange(cart.id, count, -cart.option.price);
+                    onChange(cart.id, count);
                   }}
                 ></Counter>
               </div>

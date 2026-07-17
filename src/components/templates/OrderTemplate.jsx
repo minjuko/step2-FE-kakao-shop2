@@ -6,12 +6,20 @@ import { useState } from "react";
 import { getCart } from "../../services/cart";
 import { queryKeys } from "../../services/queryKeys";
 import useApiErrorHandler from "../../hooks/useApiErrorHandler";
+import Loader from "../atoms/Loader";
+import QueryStatus from "../atoms/QueryStatus";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const OrderTemplate = () => {
-  const { data } = useQuery(queryKeys.cart, getCart, { suspense: true });
-  const { products, totalPrice } = data;
+  /**
+   * 주문 대상 장바구니 조회 API 에러 캐칭 시나리오
+   * 1. 401: 보호 라우트에서 미인증 사용자를 로그인 페이지로 이동시킨다.
+   * 2. 네트워크 및 서버 오류: 주문 정보 조회 실패 상태를 표시한다.
+   * 3. 정상 응답에 상품이 없는 경우: 주문할 상품이 없다는 상태를 표시한다.
+   */
+  const { data, isLoading, isError } = useQuery(queryKeys.cart, getCart);
+  const { products = [], totalPrice = 0 } = data ?? {};
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const handleApiError = useApiErrorHandler();
@@ -47,6 +55,29 @@ const { mutate } = useMutation({
     mutationFn: order,
     onError: (error) => handleApiError(error, "주문에 실패했습니다. 다시 시도해주세요."),
   });
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return (
+      <QueryStatus
+        isError
+        title="주문 정보를 불러오지 못했습니다."
+        message="장바구니를 확인한 뒤 다시 시도해주세요."
+      />
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <QueryStatus
+        title="주문할 상품이 없습니다."
+        message="장바구니에 상품을 담은 뒤 주문해주세요."
+      />
+    );
+  }
 
 
   const OrderItems = () => {

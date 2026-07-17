@@ -6,20 +6,44 @@ import Title from "../atoms/Title";
 import Box from "../atoms/Box";
 import Button from "../atoms/Button";
 import { queryKeys } from "../../services/queryKeys";
+import Loader from "../atoms/Loader";
+import QueryStatus from "../atoms/QueryStatus";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const OrderSuccessTemplate = () => {
   const { id } = useParams();
-  const { data } = useQuery(queryKeys.order(id), () => getOrderFromId(id), {
-    suspense: true,
-  });
+
+  /**
+   * 주문 결과 조회 API 에러 캐칭 시나리오
+   * 1. 401: 보호 라우트에서 미인증 사용자를 로그인 페이지로 이동시킨다.
+   * 2. 404: 존재하지 않는 주문 번호임을 조회 실패 상태로 안내한다.
+   * 3. 네트워크 및 서버 오류: 주문 결과 조회 실패 상태를 표시한다.
+   */
+  const { data, isLoading, isError } = useQuery(
+    queryKeys.order(id),
+    () => getOrderFromId(id)
+  );
+
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return (
+      <QueryStatus
+        isError
+        title="주문 결과를 불러오지 못했습니다."
+        message="주문 번호를 확인한 뒤 다시 시도해주세요."
+      />
+    );
+  }
 
   const orderId = data.id;
   const orderProducts = data.products;
   const orderTotalPrice = data.totalPrice;
-
-  const navigate = useNavigate();
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../atoms/Container";
 import Box from "../atoms/Box";
 import CartItem from "../atoms/CartItem";
@@ -10,20 +10,31 @@ import { getCart, updateCart } from "../../services/cart";
 import Title from "../atoms/Title";
 import { queryKeys } from "../../services/queryKeys";
 import useApiErrorHandler from "../../hooks/useApiErrorHandler";
+import Loader from "../atoms/Loader";
+import QueryStatus from "../atoms/QueryStatus";
+import {
+  calculateCartTotal,
+  hasCartItems,
+  updateCartItemQuantity,
+  upsertCartUpdate,
+} from "../../utils/cart";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const CartList = () => {
-  const { data } = useQuery(queryKeys.cart, getCart, {
-    suspense: true,
-  });
+  /**
+   * 장바구니 조회 API 에러 캐칭 시나리오
+   * 1. 401: 보호 라우트에서 미인증 사용자를 로그인 페이지로 이동시킨다.
+   * 2. 네트워크 및 서버 오류: 장바구니 조회 실패 상태를 표시한다.
+   * 3. 정상 응답에 상품이 없는 경우: 장바구니가 비었다는 상태를 표시한다.
+   */
+  const { data, isLoading, isError } = useQuery(queryKeys.cart, getCart);
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
   const handleApiError = useApiErrorHandler();
 
   const [cartItems, setCartItems] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
   const [updatePayload, setUpdatePayload] = useState([]);
 
   /**
@@ -41,83 +52,44 @@ const CartList = () => {
   });
 
   useEffect(() => {
+    if (!data) {
+      return;
+    }
     setCartItems(data.products);
-    setTotalPrice(data.totalPrice);
   }, [data]);
 
-  const handleOnChangeCount = (optionId, quantity, price) => {
-    setUpdatePayload((prev) => {
-      const isExist = prev.find((item) => item.cartId === optionId);
-      if (isExist) {
-        return [
-          ...prev.filter((item) => item.cartId !== optionId),
-          {
-            cartId: optionId,
-            quantity,
-          },
-        ];
-      }
-      return [
-        ...prev,
-        {
-          cartId: optionId,
-          quantity,
-        },
-      ];
-    });
-    setTotalPrice((prev) => prev + price);
-    setCartItems((prev) => {
-      return prev.map((item) => {
-        return {
-          ...item,
-          carts: item.carts.map((cart) => {
-            if (cart.id === optionId) {
-              return { ...cart, quantity };
-            }
-            return cart;
-          }),
-        };
-      });
-    });
+  const handleOnChangeCount = (cartId, quantity) => {
+    setUpdatePayload((prev) => upsertCartUpdate(prev, cartId, quantity));
+    setCartItems((prev) => updateCartItemQuantity(prev, cartId, quantity));
   };
 
-  const handleOnDeleteOption = useCallback((optionId, quantity, price) => {
-    setUpdatePayload((prev) => {
-        const isExist = prev.find((item) => item.cartId === optionId);
+  const handleOnDeleteOption = (cartId) => {
+    setUpdatePayload((prev) => upsertCartUpdate(prev, cartId, 0));
+    setCartItems((prev) => updateCartItemQuantity(prev, cartId, 0));
+  };
 
-        if(isExist) {
-            return [
-                ...prev.filter((item) => item.cartId !== optionId),
-                {
-                    cartId: optionId,
-                    quantity: 0,
-                }
-            ]
-        };
+  if (isLoading) {
+    return <Loader />;
+  }
 
-        return[
-            ...prev,
-            {
-                cartId: optionId,
-                quantity: 0,
-            }
-        ]
-    });
-    setTotalPrice((prev) => prev - price * quantity);
-    setCartItems((prev) => {
-        return prev.map((item) => {
-            return {
-                ...item,
-                carts: item.carts.map((cart) => {
-                    if(cart.id === optionId) {
-                        return {...cart, quantity: 0};
-                    }
-                    return cart;
-                })
-            }
-        })
-    });
-}, []);
+  if (isError) {
+    return (
+      <QueryStatus
+        isError
+        title="장바구니를 불러오지 못했습니다."
+        message="잠시 후 다시 시도해주세요."
+      />
+    );
+  }
+
+  if (!hasCartItems(cartItems)) {
+    return (
+      <QueryStatus
+        title="장바구니가 비어 있습니다."
+        message="원하는 상품을 장바구니에 담아보세요."
+      />
+    );
+  }
 
   return (
     <Container className="cart-list">
@@ -126,23 +98,21 @@ const CartList = () => {
       </Box>
       <div>
         {Array.isArray(cartItems) &&
-          cartItems.map((item) => {
-            return (
-              <>
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  onChange={handleOnChangeCount}
-                  onDelete={handleOnDeleteOption}
-                />
-              </>
-            );
-          })}
+          cartItems
+            .filter((item) => item.carts.some((cart) => cart.quantity > 0))
+            .map((item) => (
+              <CartItem
+                key={item.id}
+                item={item}
+                onChange={handleOnChangeCount}
+                onDelete={handleOnDeleteOption}
+              />
+            ))}
       </div>
       <div className="row flex justify-between border p-4 ml-[100px]">
           <div>주문 예상 금액</div>
           <div className="mr-[15px] font-bold text-blue-600">
-            {comma(totalPrice)}원
+            {comma(calculateCartTotal(cartItems))}원
           </div>
         </div>
       
