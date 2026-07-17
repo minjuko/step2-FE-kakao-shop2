@@ -9,7 +9,11 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../store/slices/userSlice";
 import { setAuthToken } from "../../utils/localStorage";
 import Title from "../atoms/Title";
-import { EMAIL_REGEX, PW_REGEX } from "../../utils/regex";
+import {
+    isValidAuthForm,
+    validateAuthField,
+    validateRegistration,
+} from "../../utils/authValidation";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
@@ -55,37 +59,23 @@ const RegisterForm = () => {
         passwordConfirm: "",
     });
 
-    const checkRegex = (inputName, inputValue) => {
-        let result;
-        if (value[inputName].length === 0) {
-            result = 'required';
-        } else {
-            switch (inputName) {
-                case 'email':
-                    result = EMAIL_REGEX.test(inputValue) ? true : 'invalidEmail';
-                    break;
-                case 'username':
-                    result = true;
-                    break;
-                case 'password':
-                    result = PW_REGEX.test(inputValue) ? true : 'invalidPw';
-                    if (value['passwordConfirm']) {
-                        checkRegex('passwordConfirm', value['passwordConfirm']);
-                    }
-                    break;
-                case 'passwordConfirm':
-                    result = inputValue === value['password'] ? true : 'invalidConfirmPw';
-                    break;
-                default:
-                    return;
-            }
-        }
-        setInvalidCheck((prev) => ({ ...prev, [inputName]: result }));
-    };
-
     const handleOnCheck = (e) => {
-        const { name, value } = e.target;
-        checkRegex(name, value);
+        const { name, value: inputValue } = e.target;
+        const nextValues = { ...value, [name]: inputValue };
+
+        setInvalidCheck((prev) => ({
+            ...prev,
+            [name]: validateAuthField(name, inputValue, nextValues),
+            ...(name === "password" && value.passwordConfirm
+                ? {
+                    passwordConfirm: validateAuthField(
+                        "passwordConfirm",
+                        value.passwordConfirm,
+                        nextValues
+                    ),
+                }
+                : {}),
+        }));
     };
 
     /**
@@ -96,6 +86,18 @@ const RegisterForm = () => {
      */
     const registerReq = async (event) => {
         event.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
+
+        const validation = validateRegistration(value);
+        setInvalidCheck(validation);
+
+        if (!isValidAuthForm(validation)) {
+            return;
+        }
+
         setIsSubmitting(true);
         setError("");
 
@@ -118,8 +120,6 @@ const RegisterForm = () => {
 
 
     const navigate = useNavigate();
-    const isValid = Object.values(invalidCheck).every((value) => value === true);
-
     return (
         <>
             <Container>
@@ -178,7 +178,7 @@ const RegisterForm = () => {
                         required
                     />
                     {error && <p className="mb-4 border border-red-100 bg-red-50 p-2 text-red-600" role="alert">{error}</p>}
-                    <Button type="submit" disabled={!isValid || isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "가입 중..." : "회원가입"}
                     </Button>
                     <div className="text-0.8em mt-1.5em">

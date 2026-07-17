@@ -9,7 +9,11 @@ import { setUser } from "../../store/slices/userSlice";
 import { setAuthToken } from "../../utils/localStorage";
 import { useNavigate } from 'react-router-dom';
 import Title from "../atoms/Title";
-import { EMAIL_REGEX, PW_REGEX } from "../../utils/regex";
+import {
+    isValidAuthForm,
+    validateAuthField,
+    validateLogin,
+} from "../../utils/authValidation";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
@@ -51,28 +55,15 @@ const LoginForm = () => {
         password: "",
     });
 
-    const checkRegex = (inputName, inputValue) => {
-        let result;
-        if (value[inputName].length === 0) {
-            result = 'required';
-        } else {
-            switch (inputName) {
-                case 'email':
-                    result = EMAIL_REGEX.test(inputValue) ? true : 'invalidEmail';
-                    break;
-                case 'password':
-                    result = PW_REGEX.test(inputValue) ? true : 'invalidPw';
-                    break;
-                default:
-                    return;
-            }
-        }
-        setInvalidCheck((prev) => ({ ...prev, [inputName]: result }));
-    };
-
     const handleOnCheck = (e) => {
-        const { name, value } = e.target;
-        checkRegex(name, value);
+        const { name, value: inputValue } = e.target;
+        setInvalidCheck((prev) => ({
+            ...prev,
+            [name]: validateAuthField(name, inputValue, {
+                ...value,
+                [name]: inputValue,
+            }),
+        }));
     };
 
     /**
@@ -83,6 +74,18 @@ const LoginForm = () => {
      */
     const loginReq = async (event) => {
         event.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
+
+        const validation = validateLogin(value);
+        setInvalidCheck(validation);
+
+        if (!isValidAuthForm(validation)) {
+            return;
+        }
+
         setIsSubmitting(true);
         setError("");
 
@@ -103,8 +106,6 @@ const LoginForm = () => {
     };
 
     const navigate = useNavigate();
-
-    const isValid = Object.values(invalidCheck).every((value) => value === true);
 
     return (
         <>
@@ -138,7 +139,7 @@ const LoginForm = () => {
                         required
                     />
                     {error && <p className="mb-4 border border-red-100 bg-red-50 p-2 text-red-600" role="alert">{error}</p>}
-                    <Button type="submit" disabled={!isValid || isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "로그인 중..." : "로그인"}
                     </Button>
 					<div className="text-0.8em mt-1.5em">
