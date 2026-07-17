@@ -10,8 +10,7 @@ const ProductContainer = styled(Card)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  row-gap: 16px;
+  row-gap: 12px;
 `;
 
 const ImageContainer = styled.div`
@@ -19,19 +18,17 @@ const ImageContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
+  width: 100%;
 `;
 
 const Title = styled.div`
-  decoration-text: none;
+  text-decoration: none;
   display: inline-block;
   font-size: 1em;
   color: black;
 `;
 
 const PriceText = styled.span`
-  margin-left: auto; 
   color: black;
   font-weight: bold;
   font-size: 1.2em;
@@ -42,11 +39,11 @@ const ProductCard = ({ product }) => {
   return (
     <ProductContainer to={`${staticServerUri}/products/${product.id}`}>
       <ImageContainer>
-        <Photo src={`${staticServerUri}/assets${product.image}`} alt={product.productName} className="card" />
+        <Photo src={`${staticServerUri}/assets${product.image}`} alt={product.productName} className="aspect-[4/3] w-full rounded-md object-cover" />
       </ImageContainer>
       <div>
         <Title>{product.productName}</Title>
-        <br/><br/>
+        <br/>
         <PriceText>{comma(product.price)}원</PriceText>
         
       </div>

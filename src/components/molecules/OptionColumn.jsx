@@ -61,7 +61,7 @@ const OptionColumn = ({ product }) => {
    *
    * 상태 코드별 공통 동작은 useApiErrorHandler에서 처리한다.
    */
-  const { mutate } = useMutation({
+  const { mutate, isLoading } = useMutation({
     mutationFn: addCart,
     onError: (error) => handleApiError(
       error,
@@ -70,12 +70,12 @@ const OptionColumn = ({ product }) => {
   });
  
   return (
-    <div className="flex flex-col items-center sticky top-0 h-200 pb-96">
-      <div className="my-2">옵션 선택</div>
+    <section className="flex w-full flex-col rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4 lg:self-start">
+      <h2 className="mb-3 text-lg font-bold">옵션 선택</h2>
       <OptionList
         options={product.options} onClick={handleOnClickOption}
       />
-    <Container className="text-sm mt-5">
+    <Container className="mt-5 text-sm">
       <div className="flex">
         <span className="font-bold mr-1">배송 방법</span><span>택배배송</span>
       </div>
@@ -83,10 +83,10 @@ const OptionColumn = ({ product }) => {
       <div className="border border-gray-500 rounded-sm bg-gray-200 text-gray-500 p-0.5 text-xs">무료배송</div>
       <span>제주 추가 3,000원, 제주 외 도서지역 추가 6,000원</span>
     </Container>
-      <Container className="w-full mb-2 border border-gray-300">
+      <Container className="mb-2 mt-5 w-full">
           {selectedOptions.map((option) => (
              <ol key={option.optionId} className="selected-option-list">
-             <li className="w-full mb-2 border border-gray-300">
+             <li className="mb-2 w-full rounded border border-gray-300 p-3">
                <div className="flex justify-between">
                  <div className="name">{option.name}</div>
                  <div className="price">
@@ -102,8 +102,8 @@ const OptionColumn = ({ product }) => {
           ))}
       </Container>
 
-      <Container className="flex justify-between w-full">
-      <div className="flex justify-between my-4">
+      <Container className="w-full">
+      <div className="my-4 flex flex-wrap justify-between gap-3">
         <div>
           총 수량:{" "}
           {selectedOptions.reduce((acc, cur) => {
@@ -123,9 +123,10 @@ const OptionColumn = ({ product }) => {
       </div>
       </Container>
 
-      <Container className="flex w-full mt-3">
+      <Container className="mt-3 flex w-full gap-2">
         <Button
-          className="w-15 p-2 mr-1 text-100 h-10 bg-gray-800 rounded-md text-white"
+          className="h-11 flex-1 rounded-md bg-gray-800 p-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          disabled={selectedOptions.length === 0 || isLoading}
           onClick={() => {
             mutate(
               selectedOptions.map((el) => {
@@ -143,19 +144,18 @@ const OptionColumn = ({ product }) => {
             );
           }}
         >
-          장바구니 담기
+          {isLoading ? "담는 중..." : "장바구니 담기"}
         </Button>
         <Button
-          className="w-38 p-2 text-100 h-10 bg-yellow-300 rounded-md"
-          onClick={() => {
-            alert("주문 페이지로 이동합니다.");
-          }}
+          className="h-11 flex-1 cursor-not-allowed rounded-md bg-gray-200 p-2 text-gray-500"
+          disabled
+          title="장바구니에서 주문할 수 있습니다."
         >
           구매하기
         </Button>
 
       </Container>
-    </div>
+    </section>
   );
 };
 

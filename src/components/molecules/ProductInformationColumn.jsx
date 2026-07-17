@@ -9,16 +9,16 @@ const ProductInformationColumn = ({ product}) => {
     const { productName, price} = product;
 
 return (
-    <div className="flex">
-        <div className="col">
-            <Photo src={`${staticServerUri}/assets${product.image}`} alt={productName} className="w-60 h-60 rounded-lg"/>
+    <section className="grid gap-5 sm:grid-cols-[minmax(0,2fr)_minmax(180px,1fr)]">
+        <div>
+            <Photo src={`${staticServerUri}/assets${product.image}`} alt={productName} className="aspect-square w-full rounded-lg object-cover"/>
         </div>
-        <div className="col">
+        <div className="flex flex-col gap-2">
         <StarRating starCount={product.starCount}/>
-        <div className="pb-1 text-xl">{product.productName}</div>
-            <p className="mx-1">톡딜가 {comma(price)}원</p>
+        <h1 className="text-xl font-bold">{product.productName}</h1>
+            <p>톡딜가 <strong>{comma(price)}원</strong></p>
         </div>
-    </div>
+    </section>
 );
 };
 

@@ -92,9 +92,9 @@ const CartList = () => {
   }
 
   return (
-    <Container className="cart-list">
+    <Container className="mx-auto w-full max-w-[1024px] px-4 py-8">
       <Box>
-        <Title className="ml-[100px]"> 장바구니</Title>
+        <Title>장바구니</Title>
       </Box>
       <div>
         {Array.isArray(cartItems) &&
@@ -109,15 +109,15 @@ const CartList = () => {
               />
             ))}
       </div>
-      <div className="row flex justify-between border p-4 ml-[100px]">
+      <div className="mt-4 flex justify-between rounded border p-4">
           <div>주문 예상 금액</div>
-          <div className="mr-[15px] font-bold text-blue-600">
+          <div className="font-bold text-blue-600">
             {comma(calculateCartTotal(cartItems))}원
           </div>
         </div>
       
       <Button
-        className="p-2 font-bold text-center bg-yellow-300 rounded-md mt-10 ml-[100px] w-[94%]"
+        className="mt-6 w-full rounded-md bg-yellow-300 p-3 text-center font-bold"
         onClick={() => {
           mutate(updatePayload, {
             onSuccess: async () => {

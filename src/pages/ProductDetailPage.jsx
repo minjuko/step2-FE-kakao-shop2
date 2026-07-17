@@ -38,12 +38,10 @@ const ProductDetailPage = () => {
   }
 
     return (
-        <div className="flex justify-around h-280">
-        <ProductInformationColumn product={product}/>
-        <div className="h-full border-l"/>
-        <OptionColumn product={product}/>
+      <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-4 py-8 lg:grid-cols-2">
+        <ProductInformationColumn product={product} />
+        <OptionColumn product={product} />
       </div>
-
     );
 };
 

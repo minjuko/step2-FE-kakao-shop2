@@ -6,17 +6,17 @@ import Button from "./Button";
 
 const CartItem = ({ item, onChange, onDelete }) => {
   return (
-    <Box className="cart-item-box border w-100 p-4 ml-[100px]">
+    <Box className="mt-4 w-full rounded border p-4">
       <h5 className="font-bold mb-4">{item.productName}</h5>
       {item.carts.map((cart) => (
           cart.quantity > 0 ? (
         <div key={cart.id} className="cart">
           <div className="option border p-4 my-4">
             <div className="option-name">{cart.option.optionName}</div>
-            <div className="row flex justify-between">
-              <div className="flex">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  className="border w-10 mr-2"
+                  className="rounded border px-3 py-1"
                   onClick={() => {
                     onDelete(cart.id)
                   }}
