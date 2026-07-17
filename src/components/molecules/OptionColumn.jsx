@@ -3,8 +3,9 @@ import OptionList from "../atoms/OptionList";
 import Button from "../atoms/Button";
 import { addCart } from "../../services/cart";
 import Container from "../atoms/Container";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAuthenticated } from "../../utils/localStorage";
+import { queryKeys } from "../../services/queryKeys";
 import Counter from "../atoms/Counter";
 import { comma } from "../../utils/convert";
 import { useNavigate } from "react-router";
@@ -14,6 +15,7 @@ const staticServerUri = process.env.REACT_APP_PATH || "";
 const OptionColumn = ({ product }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleOnClickOption = (option) => {
     const isOptionSelected = selectedOptions.find(
@@ -134,7 +136,8 @@ const OptionColumn = ({ product }) => {
                 };
               }),
               {
-                onSuccess: () => {
+                onSuccess: async () => {
+                  await queryClient.invalidateQueries(queryKeys.cart);
                   navigate(staticServerUri + "/cart");
                 },
                 onError: (error) => {

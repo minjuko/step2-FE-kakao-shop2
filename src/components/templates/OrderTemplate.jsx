@@ -1,15 +1,17 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { comma } from "../../utils/convert";
 import { order } from "../../services/order";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getCart } from "../../services/cart";
+import { queryKeys } from "../../services/queryKeys";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const OrderTemplate = () => {
-  const { data } = useQuery(["cart"], getCart, { suspense: true });
-  const { products, totalPrice } = data?.data?.response;
+  const { data } = useQuery(queryKeys.cart, getCart, { suspense: true });
+  const { products, totalPrice } = data;
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [agreePayment, setAgreePayment] = useState(false);
   const [agreePolicy, setAgreePolicy] = useState(false);
@@ -21,12 +23,12 @@ const OrderTemplate = () => {
   };
 
   const handleAgreement = (e) => {
-    const { name, value } = e.target;
+    const { name, checked } = e.target;
 
     if (name === "payment-agree") {
-      setAgreePayment(value);
+      setAgreePayment(checked);
     } else if (name === "policy-agree") {
-      setAgreePolicy(value);
+      setAgreePolicy(checked);
     }
   };
 
@@ -163,8 +165,9 @@ const { mutate } = useMutation({
                   console.error(err);
                   alert("결제 실패");
                 },
-                onSuccess: (res) => {
-                  const id = res.data.response.id;
+                onSuccess: async (res) => {
+                  await queryClient.invalidateQueries(queryKeys.cart);
+                  const id = res.id;
                   navigate(staticServerUri + "/orders/complete/" + id);
                 },
               });

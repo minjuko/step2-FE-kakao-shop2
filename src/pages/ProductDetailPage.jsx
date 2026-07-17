@@ -4,22 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 import ProductInformationColumn from "../components/molecules/ProductInformationColumn";
 import OptionColumn from "../components/molecules/OptionColumn";
 import Loader from "../components/atoms/Loader";
+import { queryKeys } from "../services/queryKeys";
 
 const ProductDetailPage = () => {
     const { id } = useParams(); 
-    const { data, isError, isLoading} = useQuery(["product"], () => getProductById(id));
+    const { data: product, isError, isLoading} = useQuery(
+      queryKeys.product(id),
+      () => getProductById(id)
+    );
 
   if(isLoading) {
     return (
       <Loader />
     )
-  } else if(isError) {
-    return (
-      console.error("error")
-    )
   }
 
-    const product = data.data.response; 
+  if(isError) {
+    return <p role="alert">상품 정보를 불러오지 못했습니다.</p>;
+  }
 
     return (
         <div className="flex justify-around h-280">

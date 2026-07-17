@@ -5,6 +5,7 @@ import { fetchProducts } from "../../services/product";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import CardSkeleton from "../atoms/CardSkeleton";
 import { useInView } from "react-intersection-observer";
+import { queryKeys } from "../../services/queryKeys";
 
 const MainProductTemplate = () => {
     const {ref, inView} = useInView();
@@ -14,10 +15,10 @@ const MainProductTemplate = () => {
         isFetchingNextPage, 
         fetchNextPage, 
         hasNextPage
-    } = useInfiniteQuery(['products'], ({pageParam = 0}) => fetchProducts(pageParam), {
+    } = useInfiniteQuery(queryKeys.products, ({pageParam = 0}) => fetchProducts(pageParam), {
         getNextPageParam: (lastPage, pages) => {
-            if(lastPage.response && lastPage.response.length === 0) {
-                return null;
+            if (lastPage.length === 0) {
+                return undefined;
             }
             return pages.length;
         },
@@ -37,7 +38,7 @@ const MainProductTemplate = () => {
     return(
         <Container className="mainproduct">
             <Suspense fallback={<><CardSkeleton /></>}>
-                {isLoading ? (<CardSkeleton />) :  <ProductGrid products={products.pages.flatMap(page => page.response)}/>}
+                {isLoading ? (<CardSkeleton />) :  <ProductGrid products={products.pages.flat()}/>}
                 <div ref={ref}></div>
                 {isFetchingNextPage && <CardSkeleton />}
             </Suspense>

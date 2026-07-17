@@ -5,16 +5,18 @@ import CartItem from "../atoms/CartItem";
 import Button from "../atoms/Button";
 import { useNavigate } from "react-router-dom";
 import { comma } from "../../utils/convert";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCart, updateCart } from "../../services/cart";
 import Title from "../atoms/Title";
+import { queryKeys } from "../../services/queryKeys";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const CartList = () => {
-  const { data } = useQuery(["cart"], getCart, {
+  const { data } = useQuery(queryKeys.cart, getCart, {
     suspense: true,
   });
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
@@ -51,8 +53,8 @@ const CartList = () => {
   });
 
   useEffect(() => {
-    setCartItems(data.data.response.products);
-    setTotalPrice(data.data.response.totalPrice);
+    setCartItems(data.products);
+    setTotalPrice(data.totalPrice);
   }, [data]);
 
   const handleOnChangeCount = (optionId, quantity, price) => {
@@ -160,7 +162,8 @@ const CartList = () => {
         className="p-2 font-bold text-center bg-yellow-300 rounded-md mt-10 ml-[100px] w-[94%]"
         onClick={() => {
           mutate(updatePayload, {
-            onSuccess: (data) => {
+            onSuccess: async () => {
+              await queryClient.invalidateQueries(queryKeys.cart);
               navigate(staticServerUri + "/order");
             },
             onError: (error) => {

@@ -5,18 +5,19 @@ import { getOrderFromId } from "../../services/order";
 import Title from "../atoms/Title";
 import Box from "../atoms/Box";
 import Button from "../atoms/Button";
+import { queryKeys } from "../../services/queryKeys";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const OrderSuccessTemplate = () => {
   const { id } = useParams();
-  const { data } = useQuery([`orders/${id}}`], () => getOrderFromId(id), {
+  const { data } = useQuery(queryKeys.order(id), () => getOrderFromId(id), {
     suspense: true,
   });
 
-  const orderId = data.data.response.id;
-  const orderProducts = data.data.response.products;
-  const orderTotalPrice = data.data.response.totalPrice;
+  const orderId = data.id;
+  const orderProducts = data.products;
+  const orderTotalPrice = data.totalPrice;
 
   const navigate = useNavigate();
 
