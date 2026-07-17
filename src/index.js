@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import store from './store';
 import './styles/index.css';
 import App from './App';
-import reportWebVitals from './utils/reportWebVitals';
 import { enableMocking } from './mocks/enableMocking';
 
 const queryClient = new QueryClient();
@@ -22,5 +21,4 @@ enableMocking().then(() => {
     document.getElementById('root')
   );
 
-  reportWebVitals();
 });
