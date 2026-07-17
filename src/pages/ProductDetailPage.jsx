@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { getProductById } from "../services/product";
 import { useQuery } from "@tanstack/react-query";
 import ProductInformationColumn from "../components/molecules/ProductInformationColumn";

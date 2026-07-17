@@ -36,6 +36,7 @@ const CartList = () => {
 
   const [cartItems, setCartItems] = useState([]);
   const [updatePayload, setUpdatePayload] = useState([]);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   /**
    * 장바구니 수정 API 에러 캐칭 시나리오
@@ -48,7 +49,11 @@ const CartList = () => {
    */
   const { mutate } = useMutation({
     mutationFn: updateCart,
-    onError: (error) => handleApiError(error, "장바구니를 수정하지 못했습니다."),
+    onError: (error) => handleApiError(
+      error,
+      "장바구니를 수정하지 못했습니다.",
+      setFeedbackMessage
+    ),
   });
 
   useEffect(() => {
@@ -119,6 +124,7 @@ const CartList = () => {
       <Button
         className="mt-6 w-full rounded-md bg-yellow-300 p-3 text-center font-bold"
         onClick={() => {
+          setFeedbackMessage("");
           mutate(updatePayload, {
             onSuccess: async () => {
               await queryClient.invalidateQueries(queryKeys.cart);
@@ -129,6 +135,11 @@ const CartList = () => {
       >
         <span>주문하기</span>
       </Button>
+      {feedbackMessage && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {feedbackMessage}
+        </p>
+      )}
     </Container>
   );
 };

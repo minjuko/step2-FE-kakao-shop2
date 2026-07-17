@@ -8,12 +8,13 @@ import { queryKeys } from "../../services/queryKeys";
 import useApiErrorHandler from "../../hooks/useApiErrorHandler";
 import Counter from "../atoms/Counter";
 import { comma } from "../../utils/convert";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
 const OptionColumn = ({ product }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const handleApiError = useApiErrorHandler();
@@ -65,7 +66,8 @@ const OptionColumn = ({ product }) => {
     mutationFn: addCart,
     onError: (error) => handleApiError(
       error,
-      "장바구니에 상품을 담지 못했습니다. 같은 옵션이 있다면 장바구니에서 수량을 조정해주세요."
+      "장바구니에 상품을 담지 못했습니다. 같은 옵션이 있다면 장바구니에서 수량을 조정해주세요.",
+      setFeedbackMessage
     ),
   });
  
@@ -128,6 +130,7 @@ const OptionColumn = ({ product }) => {
           className="h-11 flex-1 rounded-md bg-gray-800 p-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
           disabled={selectedOptions.length === 0 || isLoading}
           onClick={() => {
+            setFeedbackMessage("");
             mutate(
               selectedOptions.map((el) => {
                 return {
@@ -155,6 +158,11 @@ const OptionColumn = ({ product }) => {
         </Button>
 
       </Container>
+      {feedbackMessage && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {feedbackMessage}
+        </p>
+      )}
     </section>
   );
 };

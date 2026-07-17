@@ -25,6 +25,7 @@ const OrderTemplate = () => {
   const handleApiError = useApiErrorHandler();
   const [agreePayment, setAgreePayment] = useState(false);
   const [agreePolicy, setAgreePolicy] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const handleAllAgree = (e) => {
     const value = e.target.checked;
@@ -51,9 +52,13 @@ const OrderTemplate = () => {
    *
    * 상태 코드별 공통 동작은 useApiErrorHandler에서 처리한다.
    */
-const { mutate } = useMutation({
+  const { mutate, isLoading: isOrdering } = useMutation({
     mutationFn: order,
-    onError: (error) => handleApiError(error, "주문에 실패했습니다. 다시 시도해주세요."),
+    onError: (error) => handleApiError(
+      error,
+      "주문에 실패했습니다. 다시 시도해주세요.",
+      setFeedbackMessage
+    ),
   });
 
   if (isLoading) {
@@ -174,10 +179,11 @@ const { mutate } = useMutation({
           <button
             onClick={() => {
               if (!agreePayment || !agreePolicy) {
-                alert("모든 항목에 동의해야합니다.");
+                setFeedbackMessage("모든 항목에 동의해야 합니다.");
                 return;
               }
 
+              setFeedbackMessage("");
               mutate(null, {
                 onSuccess: async (res) => {
                   await queryClient.invalidateQueries(queryKeys.cart);
@@ -186,12 +192,18 @@ const { mutate } = useMutation({
                 },
               });
             }}
+            disabled={isOrdering}
             className={`w-full p-4 font-medium ${
-              agreePayment && agreePolicy ? "bg-yellow-300" : "bg-gray-300"
+              agreePayment && agreePolicy && !isOrdering ? "bg-yellow-300" : "bg-gray-300"
             }`}
           >
-            결제하기
+            {isOrdering ? "결제 처리 중..." : "결제하기"}
           </button>
+          {feedbackMessage && (
+            <p className="text-sm text-red-600" role="alert">
+              {feedbackMessage}
+            </p>
+          )}
         </div>
       </div>
     </div>

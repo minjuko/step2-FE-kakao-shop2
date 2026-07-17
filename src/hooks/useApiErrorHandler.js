@@ -11,7 +11,7 @@ const useApiErrorHandler = () => {
   const navigate = useNavigate();
 
   return useCallback(
-    (error, defaultMessage = "요청을 처리하지 못했습니다. 다시 시도해주세요.") => {
+    (error, defaultMessage = "요청을 처리하지 못했습니다. 다시 시도해주세요.", onMessage) => {
       const status = error.response?.status;
 
       if (status === 401) {
@@ -31,6 +31,11 @@ const useApiErrorHandler = () => {
       const message = error.response
         ? serverMessage ?? defaultMessage
         : "네트워크 연결을 확인해주세요.";
+
+      if (onMessage) {
+        onMessage(message);
+        return;
+      }
 
       alert(message);
     },
