@@ -1,84 +1,146 @@
-# 카카오테크캠퍼스 2단계 프로젝트 > 카카오 쇼핑하기
+# 카카오 쇼핑하기 클론
 
-### 프로젝트 소개
-카카오 테크 캠퍼스 2단계 FE 과제 수행 프로젝트 입니다.
+카카오 테크 캠퍼스 2단계 프론트엔드 교육에서 진행한 쇼핑 서비스 클론 프로젝트입니다. 상품 탐색부터 인증, 장바구니, 주문 완료까지 이어지는 사용자 흐름을 React로 구현했습니다.
 
-카카오 쇼핑하기 웹사이트를 클론 코딩을 진행하였습니다.
+교육 당시에는 프로그램에서 백엔드 API 주소와 명세를 제공받아 프론트엔드를 개발했습니다. 현재 해당 서버와 과거 Krampoline 배포는 종료되어, 포트폴리오 개선 버전에서는 MSW(Mock Service Worker)로 동일한 API 계약의 데모 환경을 제공합니다.
 
-### 구현 기능
-- 회원가입
-- 로그인
-- 로그아웃
-- 전체 상품 목록 조회
-- 개별 상품 상세 조회
-- 상품 옵션 선택
-- 옵션 확인 및 수량 선택
-- 장바구니 담기
-- 장바구니 상품 목록 조회
-- 장바구니 상품 옵션 확인 및 수량 선택
-- 장바구니 상품 주문
-- 주문 상품 결제
-- 주문 결과 확인
+## 프로젝트에서 경험한 것
 
-### 배포
-<hr/>
-#### 배포주소
-https://user-app.krampoline.com/k1f87aedd7787a
+- React 컴포넌트 설계와 페이지 단위 UI 구현
+- Redux Toolkit을 이용한 인증 상태 관리
+- React Query를 이용한 서버 상태 및 mutation 관리
+- Axios interceptor를 이용한 인증 토큰과 공통 응답 처리
+- API별 오류 가능성과 대응 방식을 정의하는 에러 캐칭 시나리오 작성
+- 반응형 레이아웃과 폼·내비게이션 접근성 개선
+- React Testing Library 기반 사용자 흐름 및 순수 로직 테스트
+- MSW를 이용한 종료된 교육 API 대체와 로컬 데모 구성
 
-카카오 크램폴린 IDE를 통해 배포하였습니다. 
+## 개발 및 리뷰 방식
 
-#### 배포 환경
-카카오 크램폴린 IDE를 통해 배포하였습니다. 
+교육 저장소를 fork한 개인 저장소에서 코드를 작성하고, 교육 프로그램의 개인 브랜치로 PR을 보내는 방식으로 진행했습니다. 코치의 코드 리뷰를 반영한 뒤 승인을 받은 코드는 교육 브랜치에 merge했고, 다음 주차에는 해당 브랜치를 fork 저장소의 `main`으로 다시 가져와 작업을 이어갔습니다.
 
-#### 배포 순서
-- Dockerfile, default.conf 파일을 루트 디렉터리에 추가한다.
-- url path를 사용한 코드에 staticServerUri 설정을 추가한다.
-- 카카오 크램폴린 ide에 자신의 레포지토리를 연결한다.
-- D2hub를 빌드하고 Kargo를 배포한다.
-- 배포 이후 코드에 수정사항이 있는 경우 수정 후 반영하여 재빌드, 재배포한다.
+이 과정을 통해 기능 구현뿐 아니라 변경 단위를 나누고 리뷰 의견의 의도를 파악해 코드를 개선하는 협업 흐름을 경험했습니다.
 
-#### 배포에 영향 받는 브랜치
-- frontend 코드는 main 브랜치에 포함되어있다. main 브랜치를 통해 배포를 진행한다.
+## 주요 기능
 
+- 회원가입, 로그인, 로그아웃
+- 전체 상품 목록 및 상품 상세 조회
+- 상품 옵션 선택과 수량 조절
+- 장바구니 추가, 수량 변경 및 삭제
+- 주문 대상 확인과 결제 동의
+- 주문 생성 및 주문 결과 조회
+- 인증 만료, 네트워크 오류 및 서버 오류 처리
 
-<hr/>
+주문 화면의 배송지는 교육 API가 제공하지 않은 UI 확인용 예시 데이터이며 실제 주문이나 결제는 발생하지 않습니다.
 
-### 회고
+## 기술 스택
+
+- React 18, React Router 6
+- Redux Toolkit, React Redux
+- TanStack React Query 4
+- Axios
+- Tailwind CSS, styled-components
+- Jest, React Testing Library
+- MSW 2
+
+## 로컬 실행
+
+### 권장 실행 환경
+
+- Node.js `22.20.0`
+- npm `10.x`
+
+macOS와 Linux에서 nvm을 사용한다면 저장소 루트의 `.nvmrc`를 기준으로 환경을 맞출 수 있습니다.
+
+```bash
+nvm install
+nvm use
 ```
-하나의 프론트엔드 프로젝트를 처음 완성하는 것이어서 성취감을 느끼고 있습니다.
-1주차 때는 환경설정부터 작은 부분들까지 어려움을 겪었다. 에러가 생겼을 경우 에러가 난 부분이 어디인지, 무엇이 원인인지를
-찾는 것도 어려웠습니다. 이제는 아직 부족하나, 로그를 찍어가며 원인을 알아내고 해결을 해나가고 있습니다.
-코드를 작성하고 그 코드에 대해 현업 개발자에게 피드백을 받는 것은 처음이었는데 많은 도움을 받았습니다.
-그리고 처음 설계하는 부분이 가장 중요하다는 생각이 많이 들었습니다. 주차마다 주어진 과제 명세의 기능이 동작하는 것을 목표로 하다보니 
-폴더의 구조나 재사용성 등 놓치고 있는 부분이 있었습니다. 앞으로의 프로젝트에서는 설계를 명확하게 해야겠다는 생각이 든다.
-3단계 시작 전까지 멘토님이 피드백해주신 부분을 위주로 부족한 부분을 채워나갈 예정입니다.
-이번 프로젝트를 통해 한 단계 성장했다고 느끼며, 앞으로의 개발 공부도 꾸준히 나아가겠습니다!
+
+nvm-windows에서는 `.nvmrc` 자동 전환 대신 다음과 같이 버전을 지정합니다.
+
+```powershell
+nvm install 22.20.0
+nvm use 22.20.0
 ```
 
-### 기술 스택
+### 데모 API 사용
 
-#### Enviroment
-<div style="display: flex; gap: 4px;">
-  <img src="https://img.shields.io/badge/GITHUB-181717?style=for-the-badge&logo=GITHUB&logoColor=white">
-  <img src="https://img.shields.io/badge/GIT-F05032?style=for-the-badge&logo=GIT&logoColor=white">
-  <img src="https://img.shields.io/badge/VISUAL STUDIO CODE-007ACC?style=for-the-badge&logo=VISUAL STUDIO CODE&logoColor=white">
-</div>
+1. lockfile을 기준으로 의존성을 설치합니다.
 
-#### Config
-<img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white">
+   ```bash
+   npm ci
+   ```
 
-#### Development
-<div style="display: flex; gap: 4px;">
-  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white">
-  <img src="https://img.shields.io/badge/redux-764ABC?style=for-the-badge&logo=redux&logoColor=white">
-  <img src="https://img.shields.io/badge/react query-FF4154?style=for-the-badge&logo=react query&logoColor=white">
-  <img src="https://img.shields.io/badge/puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white">
-  <img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white">
-  <img src="https://img.shields.io/badge/react router-CA4245?style=for-the-badge&logo=react router&logoColor=white">
-  <img src="https://img.shields.io/badge/styled components-DB7093?style=for-the-badge&logo=styled components&logoColor=white">
-   <img src="https://img.shields.io/badge/tailwind CSS-06B6D4?style=for-the-badge&logo=tailwind CSS&logoColor=white">
+2. 프로젝트 루트에 `.env` 파일을 만들고 다음 값을 설정합니다.
 
-</div>
+   ```env
+   REACT_APP_ENABLE_MOCKS=true
+   ```
+
+3. 개발 서버를 실행합니다.
+
+   ```bash
+   npm start
+   ```
+
+4. `http://localhost:3000`에서 확인합니다. 데모 모드에서는 이메일 형식과 비밀번호 규칙에 맞는 임의의 계정으로 로그인할 수 있습니다.
+
+Windows PowerShell에서 npm 실행 정책 오류가 발생하면 `npm.cmd ci`, `npm.cmd start`처럼 실행할 수 있습니다.
+
+### 교육 API 사용
+
+`REACT_APP_ENABLE_MOCKS`를 설정하지 않으면 Axios의 기본 API 경로를 사용합니다. 현재 교육 서버는 종료되어 정상 동작하지 않으므로 로컬 확인에는 데모 모드를 사용해야 합니다.
+
+## 테스트와 빌드
+
+```bash
+npm test -- --watchAll=false
+npm run build
+```
+
+현재 기준 15개 테스트 스위트와 51개 테스트가 통과하며 프로덕션 빌드가 완료됩니다.
+
+## 포트폴리오 개선 내용
+
+- 인증 토큰 저장과 Axios 요청 처리를 공통 모듈로 통합
+- API 응답 중첩 구조를 서비스 계층에서 정규화
+- 서버 상태 처리를 React Query로 통일
+- 장바구니 계산·수량 변경 로직을 순수 함수로 분리하고 테스트 추가
+- 인증 폼 검증, Enter 제출, 중복 요청 방지와 오류 접근성 개선
+- 상품 목록·상세·장바구니를 반응형 레이아웃으로 개선
+- 유효하지 않은 중첩 링크와 공통 레이아웃 구조 개선
+- MSW 기반 상품·인증·장바구니·주문 데모 API 추가
+- 장바구니와 주문 오류를 화면 내 상태 메시지로 개선
+- 오래된 Recorder 테스트와 미사용 의존성 정리
+- Axios, React Router DOM, PostCSS를 호환 major의 보안 수정 버전으로 갱신
+
+## 기술적 제약과 판단
+
+이 프로젝트는 교육 당시 생성한 Create React App 5 구조를 유지합니다. 포트폴리오 정리의 목적을 기존 코드의 설계·테스트·접근성 개선에 두어 빌드 도구 전환은 현재 범위에서 제외했습니다.
+
+CRA의 중단된 의존성 체인에서 npm audit 경고가 발생하지만, 호환성을 깨뜨리는 `npm audit fix --force`는 적용하지 않았습니다. Axios, React Router DOM, PostCSS는 테스트와 빌드를 동반해 호환 범위에서 갱신했으며, 남은 직접 영향 패키지는 `react-scripts`입니다. 장기적으로 프로젝트를 운영한다면 Vite 등 유지보수되는 빌드 도구로 이전할 계획입니다.
+
+## UI 컴포넌트 직접 구현 과제
+
+2주차에는 프론트엔드 개발자와 UI 디자이너 사이에서 사용하는 컴포넌트 명칭과 동작을 익히기 위해 UI 라이브러리 없이 다음 컴포넌트를 직접 스타일링하고 상태 관리를 적용했습니다.
+
+- Toast
+- Breadcrumb
+- Carousel
+- RadioButton
+- ToggleButton
+- Checklist
+
+현재 쇼핑 화면에서 직접 사용하지 않더라도 교육 과정의 학습 산출물로 소스 코드를 보존합니다.
+
+## 배포 상태
+
+교육 과정 종료 시 Goorm/Krampoline 환경에 배포했으나 현재 서버는 종료됐습니다. 저장소의 `Dockerfile`, `default.conf`, `goorm.manifest`는 당시 배포 과정을 보여주는 교육 자료이며 현재 운영 배포 설정이 아닙니다. 공개 저장소에 불필요한 계정 및 도메인 정보는 manifest에서 제거했습니다.
+
+## 교육 당시 주차별 과제 기록
+
+아래 내용은 프로젝트 진행 당시 README에 작성한 주차별 요구사항과 기록입니다.
 
 <details>
 <summary>Step-2.-Week-1</summary>

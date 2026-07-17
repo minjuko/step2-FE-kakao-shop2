@@ -12,7 +12,7 @@ const renderGNB = () => {
     store,
     ...render(
       <Provider store={store}>
-        <MemoryRouter>
+        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <GNB />
         </MemoryRouter>
       </Provider>

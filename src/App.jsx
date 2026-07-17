@@ -15,7 +15,7 @@ const staticServerUri = process.env.REACT_APP_PATH || "";
 const App = () => {
   return(
     <div>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path={staticServerUri + "/signup"} element={<RegisterPage />} />
           <Route path={staticServerUri + "/login"} element={<LoginPage />} />

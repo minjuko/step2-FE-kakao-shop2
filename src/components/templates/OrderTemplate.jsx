@@ -10,6 +10,11 @@ import Loader from "../atoms/Loader";
 import QueryStatus from "../atoms/QueryStatus";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
+const demoShippingAddress = {
+  recipient: "예시 사용자",
+  phone: "010-0000-0000",
+  address: "서울특별시 강남구 테헤란로 000 (예시)",
+};
 
 const OrderTemplate = () => {
   /**
@@ -106,28 +111,32 @@ const OrderTemplate = () => {
   };
 
   return (
-    <div className="py-8">
-      <div className="block mx-auto max-w-[1024px] w-[100%]">
+    <div className="px-4 py-8">
+      <div className="mx-auto block w-full max-w-[1024px]">
         <div className="border p-2">
           <h1 className="text-md font-bold">주문하기</h1>
         </div>
-        <div className="border p-4">
-          <h2 className="text-md font-bold">배송지 정보</h2>
-        </div>
-        <div className="border p-4">
-          <div className="flex items-center gap-2">
-            <span>홍길동</span>
-            <span className="text-blue-400 bg-blue-100 rounded-md text-xs p-1">
-              기본 배송지
+        <section className="border p-4" aria-labelledby="shipping-address-title">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="shipping-address-title" className="text-md font-bold">
+              배송지 정보
+            </h2>
+            <span className="rounded-md bg-blue-100 p-1 text-xs text-blue-700">
+              예시 정보
             </span>
           </div>
-        </div>
-        <div className="border p-4">
-          <span>010-0000-0000</span>
-        </div>
-        <div className="border p-4">
-          <span>서울특별시 강남구 도곡동 000-00</span>
-        </div>
+          <p className="mt-2 rounded bg-gray-100 p-3 text-sm text-gray-600">
+            예시 데이터를 표시합니다. 실제 주문이나 결제는 발생하지 않습니다.
+          </p>
+          <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-[100px_1fr]">
+            <dt className="font-bold">받는 분</dt>
+            <dd>{demoShippingAddress.recipient}</dd>
+            <dt className="font-bold">연락처</dt>
+            <dd>{demoShippingAddress.phone}</dd>
+            <dt className="font-bold">주소</dt>
+            <dd>{demoShippingAddress.address}</dd>
+          </dl>
+        </section>
 
         <div className="border p-4">
           <h2>주문상품 정보</h2>
