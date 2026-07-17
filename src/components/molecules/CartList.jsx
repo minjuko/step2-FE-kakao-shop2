@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCart, updateCart } from "../../services/cart";
 import Title from "../atoms/Title";
 import { queryKeys } from "../../services/queryKeys";
+import useApiErrorHandler from "../../hooks/useApiErrorHandler";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
@@ -19,37 +20,24 @@ const CartList = () => {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
+  const handleApiError = useApiErrorHandler();
 
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [updatePayload, setUpdatePayload] = useState([]);
 
   /**
-   * 장바구니 담기 에러 캐칭 시나리오
-   * 1. 401 에러
-   *    로그인 정보가 없어 헤더에 authorization이 없는 경우 401 에러를 처리하여 로그인 페이지로 이동한다.
-   * 2. 404 에러
-   *    페이지를 찾을 수 없는 경우, NotFoundPage(404)로 이동한다.
-   * 3. 서버 에러 
-   *    서버 요청 실패의 경우 alert창을 띄운다.
+   * 장바구니 수정 API 에러 캐칭 시나리오
+   * 1. 401: 인증 정보를 제거하고 로그인 페이지로 이동한다.
+   * 2. 404: 존재하지 않는 리소스로 판단하고 404 페이지로 이동한다.
+   * 3. 네트워크 오류: 사용자에게 네트워크 연결 확인을 안내한다.
+   * 4. 그 외 서버 오류: 장바구니 수정 실패 메시지를 안내한다.
+   *
+   * 상태 코드별 공통 동작은 useApiErrorHandler에서 처리한다.
    */
-
   const { mutate } = useMutation({
     mutationFn: updateCart,
-    onError: (error) => {
-      if (error.response && error.response.status === 401) {
-        // 로그인 정보가 없어 헤더에 authorization이 없는 경우 401 에러를 처리하여 로그인 페이지로 이동한다.
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        navigate(staticServerUri + "/login");
-      } else if (error.response && error.response.status === 404) {
-        // 페이지를 찾을 수 없는 경우 404 페이지로 이동한다.
-        alert("페이지를 찾을 수 없습니다. 404 페이지로 이동합니다.");
-        navigate(staticServerUri + "/*");
-      } else {
-        // 서버 에러의 경우 alert창을 띄운다.
-        alert("주문에 실패했습니다. 다시 시도해주세요.");
-      }
-    },
+    onError: (error) => handleApiError(error, "장바구니를 수정하지 못했습니다."),
   });
 
   useEffect(() => {
@@ -165,9 +153,6 @@ const CartList = () => {
             onSuccess: async () => {
               await queryClient.invalidateQueries(queryKeys.cart);
               navigate(staticServerUri + "/order");
-            },
-            onError: (error) => {
-              alert("주문 페이지 이동에 실패했습니다.");
             },
           });
         }}

@@ -4,8 +4,8 @@ import Button from "../atoms/Button";
 import { addCart } from "../../services/cart";
 import Container from "../atoms/Container";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAuthenticated } from "../../utils/localStorage";
 import { queryKeys } from "../../services/queryKeys";
+import useApiErrorHandler from "../../hooks/useApiErrorHandler";
 import Counter from "../atoms/Counter";
 import { comma } from "../../utils/convert";
 import { useNavigate } from "react-router";
@@ -16,6 +16,7 @@ const OptionColumn = ({ product }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const handleApiError = useApiErrorHandler();
 
   const handleOnClickOption = (option) => {
     const isOptionSelected = selectedOptions.find(
@@ -51,23 +52,21 @@ const OptionColumn = ({ product }) => {
     });
   };
 
+  /**
+   * 장바구니 추가 API 에러 캐칭 시나리오
+   * 1. 401: 인증 정보를 제거하고 로그인 페이지로 이동한다.
+   * 2. 404: 상품 또는 옵션을 찾을 수 없는 경우 404 페이지로 이동한다.
+   * 3. 네트워크 오류: 사용자에게 네트워크 연결 확인을 안내한다.
+   * 4. 그 외 서버 오류: 중복 옵션 가능성을 포함한 장바구니 추가 실패 메시지를 안내한다.
+   *
+   * 상태 코드별 공통 동작은 useApiErrorHandler에서 처리한다.
+   */
   const { mutate } = useMutation({
     mutationFn: addCart,
-	onError: (error) => {
-	  console.error(error);
-      if (error.response && error.response.status === 401) {
-        // 로그인 정보가 없어 헤더에 authorization이 없는 경우 401 에러를 처리하여 로그인 페이지로 이동한다.
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        navigate(staticServerUri + "/login");
-      } else if (error.response && error.response.status === 404) {
-        // 페이지를 찾을 수 없는 경우 404 페이지로 이동한다.
-        alert("페이지를 찾을 수 없습니다. 404 페이지로 이동합니다.");
-        navigate(staticServerUri + "/*");
-	  } else {
-        // 서버 에러의 경우 alert창을 띄운다.
-        alert("주문에 실패했습니다. 다시 시도해주세요. 같은 옵션의 상품을 담으려는 경우, 장바구니에서 수량을 조정해주세요");
-      }
-    },
+    onError: (error) => handleApiError(
+      error,
+      "장바구니에 상품을 담지 못했습니다. 같은 옵션이 있다면 장바구니에서 수량을 조정해주세요."
+    ),
   });
  
   return (
@@ -139,16 +138,6 @@ const OptionColumn = ({ product }) => {
                 onSuccess: async () => {
                   await queryClient.invalidateQueries(queryKeys.cart);
                   navigate(staticServerUri + "/cart");
-                },
-                onError: (error) => {
-                  if (!isAuthenticated()) {
-                    alert("로그인이 필요한 서비스입니다.");
-                    navigate(staticServerUri + "/login");
-                  }
-                  else{
-                    alert("장바구니 담기에 실패했습니다: " + error);
-                  }
-                  
                 },
               }
             );

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getCart } from "../../services/cart";
 import { queryKeys } from "../../services/queryKeys";
+import useApiErrorHandler from "../../hooks/useApiErrorHandler";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
@@ -13,6 +14,7 @@ const OrderTemplate = () => {
   const { products, totalPrice } = data;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const handleApiError = useApiErrorHandler();
   const [agreePayment, setAgreePayment] = useState(false);
   const [agreePolicy, setAgreePolicy] = useState(false);
 
@@ -32,33 +34,18 @@ const OrderTemplate = () => {
     }
   };
 
-    /**
-   * 결제 실패 에러 캐칭 시나리오
-   * 실제 결제가 이루어지지 않으므로 세 가지 경우에 대해 에러를 처리한다.
-   * 1. 401 에러
-   *    로그인 정보가 없어 헤더에 authorization이 없는 경우 401 에러를 처리하여 로그인 페이지로 이동한다.
-   * 2. 404 에러
-   *    페이지를 찾을 수 없는 경우, NotFoundPage(404)로 이동한다.
-   * 3. 서버 에러 
-   *    서버 요청 실패의 경우 alert창을 띄운다.
+  /**
+   * 주문 생성 API 에러 캐칭 시나리오
+   * 1. 401: 인증 정보를 제거하고 로그인 페이지로 이동한다.
+   * 2. 404: 주문 대상 리소스를 찾을 수 없는 경우 404 페이지로 이동한다.
+   * 3. 네트워크 오류: 사용자에게 네트워크 연결 확인을 안내한다.
+   * 4. 그 외 서버 오류: 주문 실패 메시지와 재시도를 안내한다.
+   *
+   * 상태 코드별 공통 동작은 useApiErrorHandler에서 처리한다.
    */
-	
 const { mutate } = useMutation({
     mutationFn: order,
-    onError: (error) => {
-      if (error.response && error.response.status === 401) {
-        // 로그인 정보가 없어 헤더에 authorization이 없는 경우 401 에러를 처리하여 로그인 페이지로 이동한다.
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        navigate(staticServerUri + "/login");
-      } else if (error.response && error.response.status === 404) {
-        // 페이지를 찾을 수 없는 경우 404 페이지로 이동한다.
-        alert("페이지를 찾을 수 없습니다. 404 페이지로 이동합니다.");
-        navigate(staticServerUri + "/*");
-      } else {
-        // 서버 에러의 경우 alert창을 띄운다.
-        alert("주문에 실패했습니다. 다시 시도해주세요.");
-      }
-    },
+    onError: (error) => handleApiError(error, "주문에 실패했습니다. 다시 시도해주세요."),
   });
 
 
@@ -161,10 +148,6 @@ const { mutate } = useMutation({
               }
 
               mutate(null, {
-                onError: (err) => {
-                  console.error(err);
-                  alert("결제 실패");
-                },
                 onSuccess: async (res) => {
                   await queryClient.invalidateQueries(queryKeys.cart);
                   const id = res.id;
