@@ -9,13 +9,13 @@ const MyCarousel = () => {
   return (
     <Carousel showArrows={true} showThumbs={false} autoPlay={true} infiniteLoop={true}>
       <div>
-        <img src={image1} alt="Image 1" />
+        <img src={image1} alt="카카오 쇼핑 추천 상품 1" />
       </div>
       <div>
-        <img src={image2} alt="Image 2" />
+        <img src={image2} alt="카카오 쇼핑 추천 상품 2" />
       </div>
       <div>
-        <img src={image3} alt="Image 3" />
+        <img src={image3} alt="카카오 쇼핑 추천 상품 3" />
       </div>
     </Carousel>
   );

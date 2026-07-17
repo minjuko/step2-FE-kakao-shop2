@@ -55,16 +55,6 @@ const CartList = () => {
     setTotalPrice(data.data.response.totalPrice);
   }, [data]);
 
-  const getTotalCartCountIncludeOptions = useCallback(() => {
-    let count = 0;
-    cartItems.forEach((item) => {
-      item.carts.forEach((cart) => {
-        count += cart.quantity; 
-      });
-    });
-    return comma(count);
-  }, [cartItems]);
-
   const handleOnChangeCount = (optionId, quantity, price) => {
     setUpdatePayload((prev) => {
       const isExist = prev.find((item) => item.cartId === optionId);
@@ -137,7 +127,7 @@ const CartList = () => {
             }
         })
     });
-}, [cartItems]);
+}, []);
 
   return (
     <Container className="cart-list">
