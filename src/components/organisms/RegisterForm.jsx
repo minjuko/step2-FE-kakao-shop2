@@ -20,7 +20,7 @@ const Container = styled.main`
     justify-content: center;
 `;
 
-const Box = styled.div`
+const Form = styled.form`
     border: 1px solid #c9c8c8;
     padding: 2em;
     margin-bottom: 1em;
@@ -33,12 +33,14 @@ const Button = styled.button`
     border-radius: 0px;
     width: 25em;
     height: 3em;
-    pointer-events: ${(props) => (props.disabled ? "none" : null)};
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+    opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 `;
 
 const RegisterForm = () => {
     const dispatch = useDispatch();
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { value, handleOnChange } = useInput({
         username: "",
         email: "",
@@ -86,24 +88,32 @@ const RegisterForm = () => {
         checkRegex(name, value);
     };
 
-    const registerReq = () => {
-        register({
-            email: value.email,
-            password: value.password,
-            username: value.username,
-        })
-            .then((res) => {
-                const token = res.headers.authorization;
-                setError("");
-                dispatch(setUser({
-                    user: token,
-                }));
-                setAuthToken(token, 1000 * 60 * 60 * 24);
-                navigate(staticServerUri + "/");
-            })
-            .catch((err) => {
-                setError(err.response?.data?.error?.message ?? "회원가입에 실패했습니다.");
+    /**
+     * 회원가입 API 에러 캐칭 시나리오
+     * 1. 400·409: 유효하지 않은 정보나 중복 이메일에 대한 서버 메시지를 표시한다.
+     * 2. 네트워크 오류: 회원가입 실패 기본 메시지를 화면에 표시한다.
+     * 3. 그 외 서버 오류: 서버 메시지가 있으면 우선 표시하고 재제출할 수 있게 한다.
+     */
+    const registerReq = async (event) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        setError("");
+
+        try {
+            const res = await register({
+                email: value.email,
+                password: value.password,
+                username: value.username,
             });
+            const token = res.headers.authorization;
+            dispatch(setUser({ user: token }));
+            setAuthToken(token, 1000 * 60 * 60 * 24);
+            navigate(staticServerUri + "/");
+        } catch (err) {
+            setError(err.response?.data?.error?.message ?? "회원가입에 실패했습니다.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
 
@@ -114,7 +124,7 @@ const RegisterForm = () => {
         <>
             <Container>
                 <Title>회원가입</Title>
-                <Box>
+                <Form onSubmit={registerReq} noValidate>
                     <InputGroup
                         id="email"
                         name="email"
@@ -125,6 +135,8 @@ const RegisterForm = () => {
                         onChange={handleOnChange}
                         onBlur={handleOnCheck}
                         invalid={invalidCheck}
+                        autoComplete="email"
+                        required
                     />
                     <InputGroup
                         id="username"
@@ -136,6 +148,8 @@ const RegisterForm = () => {
                         onChange={handleOnChange}
                         onBlur={handleOnCheck}
                         invalid={invalidCheck}
+                        autoComplete="name"
+                        required
                     />
                     <InputGroup
                         id="password"
@@ -147,6 +161,8 @@ const RegisterForm = () => {
                         onChange={handleOnChange}
                         onBlur={handleOnCheck}
                         invalid={invalidCheck}
+                        autoComplete="new-password"
+                        required
                     />
                     <InputGroup
                         id="passwordConfirm"
@@ -158,20 +174,17 @@ const RegisterForm = () => {
                         onChange={handleOnChange}
                         onBlur={handleOnCheck}
                         invalid={invalidCheck}
+                        autoComplete="new-password"
+                        required
                     />
-                    {error !== '' ? <div className="bg-gray-50 border border-gray-100 text-red-600">{error}</div> : null}
-                    <Button
-                        onClick={() => {
-                            registerReq();
-                        }}
-                        disabled={isValid === true ? "" : "disabled"}
-                    >
-                        회원가입
+                    {error && <p className="mb-4 border border-red-100 bg-red-50 p-2 text-red-600" role="alert">{error}</p>}
+                    <Button type="submit" disabled={!isValid || isSubmitting}>
+                        {isSubmitting ? "가입 중..." : "회원가입"}
                     </Button>
                     <div className="text-0.8em mt-1.5em">
 						 <LinkText to={staticServerUri + "/login"} text="로그인" />
                     </div>
-                </Box>
+                </Form>
             </Container>
         </>
     );

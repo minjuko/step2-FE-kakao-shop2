@@ -29,8 +29,12 @@ const InputGroup = ({
   label,
   placeholder,
   onBlur,
-  invalid,
+  invalid = {},
+  autoComplete,
+  required = false,
 }) => {
+  const hasError = Boolean(invalid[name] && invalid[name] !== true);
+
   return (
     <Box className={`border border-gray-300 rounded p-4 mb-4 bg-white text-left ${className}`}>
       <label htmlFor={id} className="text-base">{label}</label>
@@ -42,6 +46,10 @@ const InputGroup = ({
         onChange={onChange}
         placeholder={placeholder}
         onBlur={onBlur}
+        autoComplete={autoComplete}
+        required={required}
+        aria-invalid={hasError}
+        aria-describedby={hasError ? `${name}-error` : undefined}
         className="border border-gray-300 rounded w-full h-10 px-3 mt-2 mb-2"
       />
       <ErrorMsg errorMsg={invalid} name={name} />
