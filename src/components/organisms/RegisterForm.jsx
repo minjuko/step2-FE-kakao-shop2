@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { register } from "../../services/user";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/slices/userSlice";
-import { setLocalStorageWithExp } from "../../utils/localStorage";
+import { setAuthToken } from "../../utils/localStorage";
 import Title from "../atoms/Title";
 import { EMAIL_REGEX, PW_REGEX } from "../../utils/regex";
 
@@ -93,17 +93,16 @@ const RegisterForm = () => {
             username: value.username,
         })
             .then((res) => {
+                const token = res.headers.authorization;
                 setError("");
                 dispatch(setUser({
-                    user: value.user,
+                    user: token,
                 }));
-                setLocalStorageWithExp("user", res.headers.authorization, 1000 * 60 * 60 * 24);
+                setAuthToken(token, 1000 * 60 * 60 * 24);
                 navigate(staticServerUri + "/");
             })
             .catch((err) => {
-                console.log(err.request.response);
-                const errObject = JSON.parse(err.request.response);
-                setError(errObject.error.message);
+                setError(err.response?.data?.error?.message ?? "회원가입에 실패했습니다.");
             });
     };
 

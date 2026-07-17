@@ -4,6 +4,7 @@ import Button from "../atoms/Button";
 import { addCart } from "../../services/cart";
 import Container from "../atoms/Container";
 import { useMutation } from "@tanstack/react-query";
+import { isAuthenticated } from "../../utils/localStorage";
 import Counter from "../atoms/Counter";
 import { comma } from "../../utils/convert";
 import { useNavigate } from "react-router";
@@ -137,7 +138,7 @@ const OptionColumn = ({ product }) => {
                   navigate(staticServerUri + "/cart");
                 },
                 onError: (error) => {
-                  if (localStorage.getItem("user") === null) {
+                  if (!isAuthenticated()) {
                     alert("로그인이 필요한 서비스입니다.");
                     navigate(staticServerUri + "/login");
                   }

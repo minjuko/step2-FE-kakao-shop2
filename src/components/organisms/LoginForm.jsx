@@ -6,7 +6,7 @@ import LinkText from "../atoms/LinkText";
 import { login } from '../../services/user';
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/slices/userSlice";
-import { setLocalStorageWithExp } from "../../utils/localStorage";
+import { setAuthToken } from "../../utils/localStorage";
 import { useNavigate } from 'react-router-dom';
 import Title from "../atoms/Title";
 import { EMAIL_REGEX, PW_REGEX } from "../../utils/regex";
@@ -79,18 +79,16 @@ const LoginForm = () => {
             password: value.password,
         })
             .then((res) => {
+                const token = res.headers.authorization;
                 setError('');
                 dispatch(setUser({
-                    user: value.user,
+                    user: token,
                 }));
-                
-                setLocalStorageWithExp("user", res.headers.authorization, 1000 * 60 * 60 * 24);
+                setAuthToken(token, 1000 * 60 * 60 * 24);
                 navigate(staticServerUri + "/");
             })
              .catch((err) => {
-				alert("회원 정보가 존재하지 않습니다.");
-                const errObject = JSON.parse(err.request.response);
-                setError(errObject.error.message)
+                setError(err.response?.data?.error?.message ?? "로그인에 실패했습니다.");
             });
     };
 
@@ -127,7 +125,6 @@ const LoginForm = () => {
                     />
                     {error !== '' ? <div className="bg-gray-50 border border-gray-100 text-red-600">{error}</div> : null}
                     <Button disabled={!isValid} onClick={loginReq} >로그인</Button>
-                    {error && <div>{setError}</div>}
 					<div className="text-0.8em mt-1.5em">
                         <LinkText to={staticServerUri + "/signup"} text="회원가입" />
                     </div>

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { setUser } from "../../store/slices/userSlice";
+import { clearAuthToken, getAuthToken } from "../../utils/localStorage";
 
 const staticServerUri = process.env.REACT_APP_PATH || "";
 
@@ -13,26 +14,13 @@ const GNB = () => {
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) {
-        const { value, expires } = storedUser;
-        if (expires && Date.now() > expires) {
-          localStorage.removeItem("user");
-          dispatch(setUser({ user: null }));
-        } else {
-          dispatch(setUser({ user: value }));
-        }
-      }
-    } catch (error) {
-      console.error("parsing error", error);
-    }
+    dispatch(setUser({ user: getAuthToken() }));
   }, [dispatch]);
 
 
   const handleLogOut = () => {
     dispatch(setUser({ user: null }));
-    localStorage.removeItem("user");
+    clearAuthToken();
   };
 
   return (
